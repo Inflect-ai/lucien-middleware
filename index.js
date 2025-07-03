@@ -1,5 +1,3 @@
-// lucien-middleware-backend/index.js
-
 const express = require('express');
 const fetch = require('node-fetch');
 const { config } = require('dotenv');
@@ -16,7 +14,6 @@ app.get('/boot', async (req, res) => {
     const response = await fetch(GITHUB_RAW_URL);
     const profileMarkdown = await response.text();
 
-    // Return identity profile (future: parse into structured config)
     res.status(200).json({ agent: 'Lucien', profile: profileMarkdown });
   } catch (err) {
     console.error('Error in /boot:', err);
@@ -28,43 +25,47 @@ app.get('/boot', async (req, res) => {
 app.post('/chat', async (req, res) => {
   const { message } = req.body;
   if (!message) {
-  console.error('Missing input message:', req.body);
-  return res.status(400).json({ error: 'Missing input message' });
-}
+    console.error('Missing input message:', req.body);
+    return res.status(400).json({ error: 'Missing input message' });
+  }
+
   try {
-   const data = await openaiResponse.json();
-
-if (!openaiResponse.ok) {
-  console.error('OpenAI API error:', data);
-  return res.status(500).json({ error: data.error?.message || 'OpenAI API request failed.' });
-}
-
-const reply = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-
-if (!reply) {
-  console.error('Lucien response missing:', data);
-  return res.status(500).json({ error: 'Lucien returned no message.' });
-}
- ,
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+      },
       body: JSON.stringify({
         model: 'gpt-4o',
         messages: [
-          { role: 'system', content: 'You are Lucien, InflectAI’s strategic content and distribution agent. Respond calmly, intelligently, and with a strong voice of clarity and timing.' },
-          { role: 'user', content: message }
+          {
+            role: 'system',
+            content: 'You are Lucien, InflectAI’s strategic content and distribution agent. Respond calmly, intelligently, and with a strong voice of clarity and timing.'
+          },
+          {
+            role: 'user',
+            content: message
+          }
         ]
       })
     });
 
     const data = await openaiResponse.json();
-  const reply = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
 
-if (!reply) {
-  console.error('Lucien response missing:', data);
-  return res.status(500).json({ error: 'Lucien failed to reply.' });
-}
+    if (!openaiResponse.ok) {
+      console.error('OpenAI API error:', data);
+      return res.status(500).json({ error: data.error?.message || 'OpenAI API request failed.' });
+    }
 
-res.status(200).json({ lucien: reply });
+    const reply = data?.choices?.[0]?.message?.content;
 
+    if (!reply) {
+      console.error('Lucien response missing:', data);
+      return res.status(500).json({ error: 'Lucien failed to reply.' });
+    }
+
+    res.status(200).json({ lucien: reply });
   } catch (err) {
     console.error('Error in /chat:', err);
     res.status(500).json({ error: 'Failed to generate Lucien reply.' });
@@ -73,4 +74,6 @@ res.status(200).json({ lucien: reply });
 
 // ========== DEFAULT =============================
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Lucien middleware live on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Lucien middleware live on port ${PORT}`);
+});
