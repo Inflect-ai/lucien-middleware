@@ -37,7 +37,7 @@ if (!openaiResponse.ok) {
   return res.status(500).json({ error: data.error?.message || 'OpenAI API request failed.' });
 }
 
-const reply = data?.choices?.[0]?.message?.content;
+const reply = const reply = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;;
 
 if (!reply) {
   console.error('Lucien response missing:', data);
@@ -54,7 +54,7 @@ if (!reply) {
     });
 
     const data = await openaiResponse.json();
-  const reply = data?.choices?.[0]?.message?.content;
+  const reply = const reply = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;;
 
 if (!reply) {
   console.error('Lucien response missing:', data);
