@@ -27,8 +27,10 @@ app.get('/boot', async (req, res) => {
 // ========== ENDPOINT: /chat =====================
 app.post('/chat', async (req, res) => {
   const { message } = req.body;
-  if (!message) return res.status(400).json({ error: 'Missing input message' });
-
+  if (!message) {
+  console.error('Missing input message:', req.body);
+  return res.status(400).json({ error: 'Missing input message' });
+}
   try {
    const data = await openaiResponse.json();
 
