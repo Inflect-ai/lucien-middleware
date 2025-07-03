@@ -46,7 +46,15 @@ app.post('/chat', async (req, res) => {
     });
 
     const data = await openaiResponse.json();
-    res.status(200).json({ lucien: data.choices[0].message.content });
+  const reply = data?.choices?.[0]?.message?.content;
+
+if (!reply) {
+  console.error('Lucien response missing:', data);
+  return res.status(500).json({ error: 'Lucien failed to reply.' });
+}
+
+res.status(200).json({ lucien: reply });
+
   } catch (err) {
     console.error('Error in /chat:', err);
     res.status(500).json({ error: 'Failed to generate Lucien reply.' });
