@@ -30,12 +30,20 @@ app.post('/chat', async (req, res) => {
   if (!message) return res.status(400).json({ error: 'Missing input message' });
 
   try {
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-      },
+   const data = await openaiResponse.json();
+
+if (!openaiResponse.ok) {
+  console.error('OpenAI API error:', data);
+  return res.status(500).json({ error: data.error?.message || 'OpenAI API request failed.' });
+}
+
+const reply = data?.choices?.[0]?.message?.content;
+
+if (!reply) {
+  console.error('Lucien response missing:', data);
+  return res.status(500).json({ error: 'Lucien returned no message.' });
+}
+ ,
       body: JSON.stringify({
         model: 'gpt-4o',
         messages: [
