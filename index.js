@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import fetch from "node-fetch";
 
 dotenv.config();
 
@@ -106,14 +107,14 @@ app.post("/chat", async (req, res) => {
 
     if (!openaiResponse.ok) {
       console.error("OpenAI API error:", data);
-      return res.status(500).json({ error: "Lucien failed to reply." });
+      return res.status(500).json({ error: "Lucien failed to reply.", details: data });
     }
 
-    const reply = data.choices?.[0]?.message?.content;
+    const reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
 
     if (!reply) {
       console.error("Lucien response missing:", data);
-      return res.status(500).json({ error: "Lucien failed to reply." });
+      return res.status(500).json({ error: "Lucien returned no message." });
     }
 
     res.status(200).json({ lucien: reply });
@@ -126,4 +127,3 @@ app.post("/chat", async (req, res) => {
 // ======== DEFAULT ===================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Lucien middleware live on port ${PORT}`));
-
