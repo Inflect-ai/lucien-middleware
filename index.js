@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const fetch = require("node-fetch");
 
 dotenv.config();
 
@@ -109,7 +108,7 @@ app.post("/chat", async (req, res) => {
       return res.status(500).json({ error: "Lucien failed to reply." });
     }
 
-    const reply = data.choices?.[0]?.message?.content;
+    const reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
 
     if (!reply) {
       console.error("Lucien response missing:", data);
