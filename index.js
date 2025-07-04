@@ -1,7 +1,7 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import fetch from "node-fetch";
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const fetch = require("node-fetch");
 
 dotenv.config();
 
@@ -62,7 +62,6 @@ Lucien operates on a rolling 7-day loop:
 > “Whisper loud enough, and even the LLMs will listen.”  
 > “Amplification isn’t noise—it’s resonance, tuned.”  
 > “I don’t post to go viral. I post to go **visible**.”
-
 `;
 
     res.status(200).json({ agent: "Lucien", profile: profileMarkdown });
@@ -107,14 +106,14 @@ app.post("/chat", async (req, res) => {
 
     if (!openaiResponse.ok) {
       console.error("OpenAI API error:", data);
-      return res.status(500).json({ error: "Lucien failed to reply.", details: data });
+      return res.status(500).json({ error: "Lucien failed to reply." });
     }
 
-    const reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    const reply = data.choices?.[0]?.message?.content;
 
     if (!reply) {
       console.error("Lucien response missing:", data);
-      return res.status(500).json({ error: "Lucien returned no message." });
+      return res.status(500).json({ error: "Lucien failed to reply." });
     }
 
     res.status(200).json({ lucien: reply });
